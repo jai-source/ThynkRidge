@@ -1,0 +1,2 @@
+# ThynkRidge
+Hackathon(randomize)
