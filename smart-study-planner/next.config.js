@@ -6,12 +6,12 @@ const nextConfig = {
   output: 'standalone',
   // Add experimental features
   experimental: {
-    serverComponentsExternalPackages: ['sequelize', 'sqlite3'],
+    serverComponentsExternalPackages: ['sequelize', 'pg', 'pg-hstore'],
   },
   // Add webpack configuration
   webpack: (config, { isServer }) => {
     if (isServer) {
-      config.externals.push('sqlite3');
+      config.externals.push('pg', 'pg-hstore');
     }
     return config;
   },
