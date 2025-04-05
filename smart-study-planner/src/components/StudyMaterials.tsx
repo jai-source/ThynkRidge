@@ -4,24 +4,36 @@ interface StudyMaterial {
   id: number;
   title: string;
   description: string;
-  type: 'document' | 'video' | 'link' | 'note';
+  type: MaterialType;
   url?: string;
   content?: string;
 }
 
+type MaterialType = 'document' | 'video' | 'link' | 'note';
+
 interface StudyMaterialsProps {
   studyPlanId: number;
 }
+
+const isNoteType = (type: MaterialType): type is 'note' => {
+  return type === 'note';
+};
 
 const StudyMaterials: React.FC<StudyMaterialsProps> = ({ studyPlanId }) => {
   const [materials, setMaterials] = useState<StudyMaterial[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    title: string;
+    description: string;
+    type: MaterialType;
+    url: string;
+    content: string;
+  }>({
     title: '',
     description: '',
-    type: 'document' as const,
+    type: 'document',
     url: '',
     content: '',
   });
@@ -68,7 +80,7 @@ const StudyMaterials: React.FC<StudyMaterialsProps> = ({ studyPlanId }) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value as string }));
   };
 
   if (loading) return <div className="text-center">Loading materials...</div>;
@@ -123,7 +135,7 @@ const StudyMaterials: React.FC<StudyMaterialsProps> = ({ studyPlanId }) => {
               <option value="note">Note</option>
             </select>
           </div>
-          {formData.type !== 'note' && (
+          {!isNoteType(formData.type) && (
             <div>
               <label className="block text-sm font-medium text-gray-700">URL</label>
               <input
@@ -132,11 +144,11 @@ const StudyMaterials: React.FC<StudyMaterialsProps> = ({ studyPlanId }) => {
                 value={formData.url}
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                required={formData.type !== 'note'}
+                required={!isNoteType(formData.type)}
               />
             </div>
           )}
-          {formData.type === 'note' && (
+          {isNoteType(formData.type) && (
             <div>
               <label className="block text-sm font-medium text-gray-700">Content</label>
               <textarea
@@ -145,7 +157,7 @@ const StudyMaterials: React.FC<StudyMaterialsProps> = ({ studyPlanId }) => {
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 rows={5}
-                required
+                required={isNoteType(formData.type)}
               />
             </div>
           )}
